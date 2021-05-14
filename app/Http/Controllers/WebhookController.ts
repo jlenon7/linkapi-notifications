@@ -1,5 +1,5 @@
 import { ApiTags } from '@nestjs/swagger'
-import { Body, Controller, Inject, Post, Query } from '@nestjs/common'
+import { Controller, Inject, Post, Query } from '@nestjs/common'
 import { TelegrafCollection } from 'app/Services/Collections/TelegrafCollection'
 
 @Controller('/webhooks')
@@ -7,15 +7,15 @@ import { TelegrafCollection } from 'app/Services/Collections/TelegrafCollection'
 export class WebhookController {
   @Inject(TelegrafCollection) private telegrafCollection: TelegrafCollection
 
-  @Post('telegram/uptimeRobot')
-  async telegram(@Body() body: any, @Query() queries: any) {
-    body = {
-      text: body.text,
+  @Post('uptimeRobot')
+  async uptimeRobot(@Query() queries: any) {
+    const options = {
+      from: 'UptimeRobot',
       url: queries.monitorURL,
       details: queries.alertDetails,
       name: queries.monitorFriendlyName,
     }
 
-    return this.telegrafCollection.sendMessage(body)
+    return this.telegrafCollection.sendMessage(options)
   }
 }

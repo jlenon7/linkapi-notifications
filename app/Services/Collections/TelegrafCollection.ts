@@ -12,8 +12,8 @@ export class TelegrafCollection {
     this.telegram = new Telegraf.Telegram(this.envs.token)
   }
 
-  async sendMessage(body: any) {
-    const text = `Message: ${body.text}\nURL/Queue: ${body.url}\nDetails: ${body.details}\nName: ${body.name}`
+  async sendMessage(options: any) {
+    const text = `**From:** ${options.from}\n**Name:** ${options.name}\n**Details:** ${options.details}\n**URL/Queue:** ${options.url}\n`
 
     return this.telegram.sendMessage(this.envs.chatId, text)
   }
