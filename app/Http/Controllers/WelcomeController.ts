@@ -12,14 +12,20 @@ export class WelcomeController {
 
   @Get(['', '/welcome'])
   async welcome() {
-    const commit = await exec('git rev-parse HEAD')
+    let commit = 'Not a repository'
+
+    try {
+      commit = (await exec('git rev-parse HEAD'))['stdout'].replace('\n', '')
+    } catch (error) {
+      console.log('Not a repository')
+    }
 
     return {
+      commit,
       greeting: `Welcome to ${this.configService.get<string>('app.name')}!`,
       domain: this.configService.get<string>('app.name'),
       prefix: this.configService.get<string>('app.prefix'),
       version: this.configService.get<string>('app.version'),
-      commit: commit['stdout'].replace('\n', ''),
     }
   }
 }
