@@ -13,9 +13,7 @@ export class TelegrafCollection {
   }
 
   async sendMessage(body: any) {
-    console.log(body)
-
-    const text = JSON.stringify(body)
+    const text = `Message: ${body.text}\nURL/Queue: ${body.url}\nDetails: ${body.details}\nName: ${body.name}`
 
     return this.telegram.sendMessage(this.envs.chatId, text)
   }

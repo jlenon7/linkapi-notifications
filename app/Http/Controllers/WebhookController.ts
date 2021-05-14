@@ -7,9 +7,15 @@ import { TelegrafCollection } from 'app/Services/Collections/TelegrafCollection'
 export class WebhookController {
   @Inject(TelegrafCollection) private telegrafCollection: TelegrafCollection
 
-  @Post('telegram')
+  @Post('telegram/uptimeRobot')
   async telegram(@Body() body: any, @Query() queries: any) {
-    console.log(queries)
+    body = {
+      text: body.text,
+      url: queries.monitorURL,
+      details: queries.alertDetails,
+      name: queries.monitorFriendlyName,
+    }
+
     return this.telegrafCollection.sendMessage(body)
   }
 }
