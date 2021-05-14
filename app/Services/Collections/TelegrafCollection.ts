@@ -13,8 +13,10 @@ export class TelegrafCollection {
   }
 
   async sendMessage(options: any) {
-    const text = `**From:** ${options.from}\n**Name:** ${options.name}\n**Details:** ${options.details}\n**URL/Queue:** ${options.url}\n`
+    const text = `<b>From:</b> ${options.from}\n<b>Name:</b> ${options.name}\n<b>Details:</b> ${options.details}\n<b>URL/Queue:</b> ${options.url}`
 
-    return this.telegram.sendMessage(this.envs.chatId, text)
+    return this.telegram.sendMessage(this.envs.chatId, text, {
+      parse_mode: 'HTML',
+    })
   }
 }
