@@ -18,6 +18,8 @@ export class TelegrafCollection {
       options.name
     }\n<b>URL/Queue:</b> ${options.url}\n<b>Details:</b> <code>${JSON.stringify(
       options.details,
+      null,
+      2,
     )}</code>`
 
     return this.telegram.sendMessage(this.envs.chatId, text, {
