@@ -12,9 +12,12 @@ export class WebhookController {
     const options = {
       from: 'CloudAmqp',
       url: body.hostname,
-      details: JSON.stringify(body.options),
       name: body.appname,
+      details: body,
     }
+
+    delete options.details.appname
+    delete options.details.hostname
 
     return this.telegrafCollection.sendMessage(options)
   }
@@ -24,9 +27,12 @@ export class WebhookController {
     const options = {
       from: 'UptimeRobot',
       url: queries.monitorURL,
-      details: queries.alertDetails,
       name: queries.monitorFriendlyName,
+      details: queries,
     }
+
+    delete options.details.monitorURL
+    delete options.details.monitorFriendlyName
 
     return this.telegrafCollection.sendMessage(options)
   }
