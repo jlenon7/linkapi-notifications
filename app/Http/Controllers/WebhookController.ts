@@ -1,9 +1,19 @@
+import {
+  Body,
+  Controller,
+  Inject,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
+
 import { ApiTags } from '@nestjs/swagger'
-import { Body, Controller, Inject, Post, Query } from '@nestjs/common'
+import { ApiKeyGuard } from 'app/Http/Guards/ApiKeyGuard'
 import { TelegrafCollection } from 'app/Services/Collections/TelegrafCollection'
 
-@Controller('/webhooks')
 @ApiTags('Webhook')
+@UseGuards(ApiKeyGuard)
+@Controller('/webhooks')
 export class WebhookController {
   @Inject(TelegrafCollection) private telegrafCollection: TelegrafCollection
 
