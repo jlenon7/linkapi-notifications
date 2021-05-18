@@ -4,10 +4,10 @@ import { InjectConnection } from '@nestjs/mongoose'
 import { ApiRequestContract } from '@secjs/core/contracts'
 
 @Injectable()
-export class TriggerRepository {
+export class TriggerMetricRepository {
   protected Model: Collection
 
-  constructor(@InjectConnection('main') private connection: Connection) {
+  constructor(@InjectConnection('metric') private connection: Connection) {
     this.Model = this.connection.collection('triggers')
   }
 
@@ -24,7 +24,7 @@ export class TriggerRepository {
   }
 
   async count(options?: ApiRequestContract) {
-    if (options && options.where) {
+    if (options.where) {
       return this.Model.countDocuments(options.where)
     }
 
@@ -32,7 +32,7 @@ export class TriggerRepository {
   }
 
   async getAll(options?: ApiRequestContract) {
-    if (options && options.where) {
+    if (options.where) {
       return this.Model.find(options.where).toArray()
     }
 

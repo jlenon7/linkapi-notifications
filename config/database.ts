@@ -30,4 +30,22 @@ export default {
     } as MongooseModuleOptions,
     schemas: ApplicationProvider.models as ModelDefinition[],
   },
+
+  metrics: {
+    url: `${Env('METRIC_DB_CONNECTION', 'mongodb+srv')}://${Env(
+      'METRIC_DB_USERNAME',
+      'root',
+    )}:${Env('METRIC_DB_PASSWORD', 'root')}@${Env(
+      'METRIC_DB_HOST',
+      'cluster0.uagp0.mongodb.net',
+    )}/${Env('METRIC_DB_DATABASE', 'mongodb')}?${Env('METRIC_DB_OPTIONS', '')}`,
+    options: {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useFindAndModify: false,
+      useUnifiedTopology: true,
+      connectionName: 'metric',
+    } as MongooseModuleOptions,
+    schemas: ApplicationProvider.models as ModelDefinition[],
+  },
 }

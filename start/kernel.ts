@@ -23,4 +23,8 @@ export default [
     App.configs.database.mongo.url,
     App.configs.database.mongo.options,
   ),
+  MongooseModule.forRoot(
+    App.configs.database.metrics.url,
+    App.configs.database.metrics.options,
+  ),
 ]
