@@ -13,7 +13,6 @@ export class TelegrafCollection {
   }
 
   async sendMessage(options: any) {
-    console.log(options)
     const text = `<b>From:</b> ${options.from}\n<b>Name:</b> ${
       options.name
     }\n<b>URL/Queue:</b> ${options.url}\n<b>Details:</b> <code>${JSON.stringify(

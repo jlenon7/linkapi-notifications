@@ -3,15 +3,24 @@ import Log from 'start/debug'
 import * as glob from 'glob'
 import * as path from 'path'
 
-export class ApplicationProvider {
-  static pipes: any[] = []
-  static configs: any = {}
-  static services: any[] = []
-  static httpGuards: any[] = []
-  static httpMiddlewares: any[] = []
-  static httpControllers: any[] = []
+interface IConfig {
+  isGlobal: boolean
+  load: [any]
+  [key: string]: any | any[]
+}
 
-  get configs() {
+export class ApplicationProvider {
+  static configs = {}
+
+  static pipes = []
+  static models = []
+  static services = []
+  static httpGuards = []
+  static repositories = []
+  static httpMiddlewares = []
+  static httpControllers = []
+
+  get configs(): IConfig {
     return {
       isGlobal: true,
       load: [() => ApplicationProvider.configs],
@@ -32,6 +41,7 @@ export class ApplicationProvider {
       ...ApplicationProvider.pipes,
       ...ApplicationProvider.services,
       ...ApplicationProvider.httpGuards,
+      ...ApplicationProvider.repositories,
     ]
 
     providers = providers.filter(provider => {
@@ -43,11 +53,27 @@ export class ApplicationProvider {
 
   constructor() {
     this.bootPipes()
+    this.bootModels()
     this.bootServices()
     this.bootHttpGuards()
+    this.bootRepositories()
     this.bootHttpMiddlewares()
     this.bootHttpControllers()
     this.bootConfigs()
+  }
+
+  clearMemory() {
+    delete ApplicationProvider.configs
+
+    delete ApplicationProvider.pipes
+    delete ApplicationProvider.models
+    delete ApplicationProvider.services
+    delete ApplicationProvider.httpGuards
+    delete ApplicationProvider.repositories
+    delete ApplicationProvider.httpMiddlewares
+    delete ApplicationProvider.httpControllers
+
+    Log.main('🧹 Memory successfully cleared')
   }
 
   bootPipes() {
@@ -71,18 +97,24 @@ export class ApplicationProvider {
     })
   }
 
-  bootConfigs() {
+  bootModels() {
     const fileExt = '.ts'
-    const filePath = 'config'
+    const filePath = 'app/Models'
 
     glob.sync(`${filePath}/**/*${fileExt}`).forEach(function(file) {
       const fileName = path.parse(file).name
       const replacedPath = file.replace(`${fileName}${fileExt}`, fileName)
 
-      Log.main(`🔗 Boot ${fileName}`)
-      ApplicationProvider.configs[
-        fileName
-      ] = require(`../${replacedPath}`).default
+      const Class = require(`../${replacedPath}`)[fileName]
+
+      if (Class.prototype.ignore) {
+        Log.main(`🎲 Ignoring ${fileName}`)
+
+        return
+      }
+
+      Log.main(`🎲 Boot ${fileName}`)
+      ApplicationProvider.models.push(Class)
     })
   }
 
@@ -128,6 +160,27 @@ export class ApplicationProvider {
     })
   }
 
+  bootRepositories() {
+    const fileExt = '.ts'
+    const filePath = 'app/Repositories'
+
+    glob.sync(`${filePath}/**/*${fileExt}`).forEach(function(file) {
+      const fileName = path.parse(file).name
+      const replacedPath = file.replace(`${fileName}${fileExt}`, fileName)
+
+      const Class = require(`../${replacedPath}`)[fileName]
+
+      if (Class.prototype.ignore) {
+        Log.main(`🧱 Ignoring ${fileName}`)
+
+        return
+      }
+
+      Log.main(`🧱 Boot ${fileName}`)
+      ApplicationProvider.repositories.push(Class)
+    })
+  }
+
   bootHttpMiddlewares() {
     const fileExt = '.ts'
     const filePath = 'app/Http/Middlewares'
@@ -170,6 +223,21 @@ export class ApplicationProvider {
 
       Log.main(`🚪 Boot ${fileName}`)
       ApplicationProvider.httpControllers.push(Class)
+    })
+  }
+
+  bootConfigs() {
+    const fileExt = '.ts'
+    const filePath = 'config'
+
+    glob.sync(`${filePath}/**/*${fileExt}`).forEach(function(file) {
+      const fileName = path.parse(file).name
+      const replacedPath = file.replace(`${fileName}${fileExt}`, fileName)
+
+      Log.main(`🔗 Boot ${fileName}`)
+      ApplicationProvider.configs[
+        fileName
+      ] = require(`../${replacedPath}`).default
     })
   }
 }

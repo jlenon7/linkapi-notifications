@@ -1,18 +1,18 @@
 import 'start/env'
-import 'providers/ApplicationProvider'
 import * as helmet from 'helmet'
 import * as rateLimit from 'express-rate-limit'
+import ApplicationProvider from 'providers/ApplicationProvider'
 
 import { AppModule } from 'app/AppModule'
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
 import { SwaggerModule } from '@nestjs/swagger'
 import { AllExceptionFilter } from 'app/Http/Filters/AllExceptionFilter'
-import { ResponseInterceptor } from '../app/Http/Interceptors/ResponseInterceptor'
+import { ResponseInterceptor } from 'app/Http/Interceptors/ResponseInterceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
-  const Config = app.get(ConfigService)
+  const Config: ConfigService = app.get(ConfigService)
 
   app.use(helmet())
   app.enableCors(Config.get('cors'))
@@ -28,6 +28,7 @@ async function bootstrap() {
   )
 
   await app.listen(Config.get('app.port'))
+  ApplicationProvider.clearMemory()
 }
 
 bootstrap().catch()

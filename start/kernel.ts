@@ -2,6 +2,8 @@ import App from 'providers/ApplicationProvider'
 
 import { HttpModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { MongooseModule } from '@nestjs/mongoose'
+import { ScheduleModule } from '@nestjs/schedule'
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +16,11 @@ import { ConfigModule } from '@nestjs/config'
 */
 
 export default [
+  ScheduleModule.forRoot(),
   ConfigModule.forRoot(App.configs),
   HttpModule.register(App.configs.http),
+  MongooseModule.forRoot(
+    App.configs.database.mongo.url,
+    App.configs.database.mongo.options,
+  ),
 ]

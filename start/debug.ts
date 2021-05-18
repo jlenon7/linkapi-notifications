@@ -2,6 +2,7 @@ import { debug, Debugger } from 'debug'
 
 class Log {
   private logMain: Debugger = debug('api:main')
+  private logCron: Debugger = debug('api:cron')
   private logTest: Debugger = debug('api:test')
   private logEnvironment: Debugger = debug('api:environment')
   private logHttpException: Debugger = debug('api:http:exception')
@@ -9,6 +10,10 @@ class Log {
 
   main(message: any) {
     this.logMain(message)
+  }
+
+  cron(message: any) {
+    this.logCron(message)
   }
 
   test(message: any) {
