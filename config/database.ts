@@ -13,20 +13,38 @@ export default {
   | npm i --save mongoose
   |
   */
-  mongo: {
-    url: `${Env('DB_CONNECTION', 'mongodb+srv')}://${Env(
-      'DB_USERNAME',
+  v4: {
+    url: `${Env('V4_DB_CONNECTION', 'mongodb+srv')}://${Env(
+      'V4_DB_USERNAME',
       'root',
-    )}:${Env('DB_PASSWORD', 'root')}@${Env(
-      'DB_HOST',
+    )}:${Env('V4_DB_PASSWORD', 'root')}@${Env(
+      'V4_DB_HOST',
       'cluster0.uagp0.mongodb.net',
-    )}/${Env('DB_DATABASE', 'mongodb')}?${Env('DB_OPTIONS', '')}`,
+    )}/${Env('V4_DB_DATABASE', 'mongodb')}?${Env('V4_DB_OPTIONS', '')}`,
     options: {
       useCreateIndex: true,
       useNewUrlParser: true,
       useFindAndModify: false,
       useUnifiedTopology: true,
-      connectionName: 'main',
+      connectionName: 'v4',
+    } as MongooseModuleOptions,
+    schemas: ApplicationProvider.models as ModelDefinition[],
+  },
+
+  v5: {
+    url: `${Env('V5_DB_CONNECTION', 'mongodb+srv')}://${Env(
+      'V5_DB_USERNAME',
+      'root',
+    )}:${Env('V5_DB_PASSWORD', 'root')}@${Env(
+      'V5_DB_HOST',
+      'cluster0.uagp0.mongodb.net',
+    )}/${Env('V5_DB_DATABASE', 'mongodb')}?${Env('V5_DB_OPTIONS', '')}`,
+    options: {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useFindAndModify: false,
+      useUnifiedTopology: true,
+      connectionName: 'v5',
     } as MongooseModuleOptions,
     schemas: ApplicationProvider.models as ModelDefinition[],
   },

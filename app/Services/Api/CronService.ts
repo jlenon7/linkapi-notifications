@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config'
 import { Inject, Injectable } from '@nestjs/common'
 import { TriggerRepository } from 'app/Repositories/TriggerRepository'
 import { TelegrafCollection } from 'app/Services/Collections/TelegrafCollection'
-import { TriggerMetricRepository } from '../../Repositories/TriggerMetricRepository'
+import { TriggerMetricRepository } from 'app/Repositories/TriggerMetricRepository'
 
 @Injectable()
 export class CronService {
@@ -30,10 +30,10 @@ export class CronService {
       developmentJob: { $in: [false, null] },
     }
 
-    let startDate = '$startedAt'
+    let startDate = '$updatedAt'
 
     if (version === 'v4') {
-      startDate = '$updatedAt'
+      startDate = '$startedAt'
     }
 
     return [
@@ -159,13 +159,13 @@ export class CronService {
       numberOfRunning: 0,
     }
 
-    triggersLength.numberOfQueued = await this.triggerRepository.count({
+    triggersLength.numberOfQueued = await this.triggerRepository.count('v5', {
       where: {
         status: 'QUEUED',
       },
     })
 
-    triggersLength.numberOfRunning = await this.triggerRepository.count({
+    triggersLength.numberOfRunning = await this.triggerRepository.count('v5', {
       where: {
         status: 'RUNNING',
       },
@@ -207,13 +207,16 @@ export class CronService {
       .add(10, 'minutes')
       .format()
 
-    await this.v4TriggersTasks(startDate, endDate)
-    await this.v5TriggersTasks(startDate, endDate)
+    this.v4TriggersTasks(startDate, endDate)
+    this.v5TriggersTasks(startDate, endDate)
   }
 
   async v4TriggersTasks(startDate, endDate) {
+    const version = 'v4'
+
     const triggers = await this.triggerRepository.aggregate(
-      this.aggregate('v4'),
+      version,
+      this.aggregate(version),
     )
 
     for (const trigger of triggers) {
@@ -238,7 +241,10 @@ export class CronService {
   }
 
   async v5TriggersTasks(startDate, endDate) {
-    const triggers = await this.triggerRepository.aggregate(this.aggregate())
+    const triggers = await this.triggerRepository.aggregate(
+      'v5',
+      this.aggregate('v5'),
+    )
 
     for (const trigger of triggers) {
       const options = {
@@ -254,7 +260,7 @@ export class CronService {
         return
       }
 
-      await this.mountPayload('V4 Triggers without result', {
+      await this.mountPayload('V5 Triggers without result', {
         trigger: trigger,
         metrics: metrics.length,
       })

@@ -5,46 +5,75 @@ import { ApiRequestContract } from '@secjs/core/contracts'
 
 @Injectable()
 export class TriggerRepository {
-  protected Model: Collection
+  protected v4Model: Collection
+  protected v5Model: Collection
 
-  constructor(@InjectConnection('main') private connection: Connection) {
-    this.Model = this.connection.collection('triggers')
+  constructor(
+    @InjectConnection('v4') private v4Connection: Connection,
+    @InjectConnection('v5') private v5Connection: Connection,
+  ) {
+    this.v4Model = this.v4Connection.collection('triggers')
+    this.v5Model = this.v5Connection.collection('triggers')
   }
 
-  async getOne(id?: string, options?: ApiRequestContract) {
+  async getOne(version?: string, id?: string, options?: ApiRequestContract) {
+    let model = this.v5Model
+
+    if (version === 'v4') {
+      model = this.v4Model
+    }
+
     if (id) {
-      return this.Model.findOne({ id })
+      return model.findOne({ id })
     }
 
     if (options && options.where) {
-      return this.Model.findOne(options.where)
+      return model.findOne(options.where)
     }
 
-    return this.Model.findOne({})
+    return model.findOne({})
   }
 
-  async count(options?: ApiRequestContract) {
-    if (options && options.where) {
-      return this.Model.countDocuments(options.where)
+  async count(version?: string, options?: ApiRequestContract) {
+    let model = this.v5Model
+
+    if (version === 'v4') {
+      model = this.v4Model
     }
 
-    return this.Model.countDocuments()
+    if (options && options.where) {
+      return model.countDocuments(options.where)
+    }
+
+    return model.countDocuments()
   }
 
-  async getAll(options?: ApiRequestContract) {
-    if (options && options.where) {
-      return this.Model.find(options.where).toArray()
+  async getAll(version?: string, options?: ApiRequestContract) {
+    let model = this.v5Model
+
+    if (version === 'v4') {
+      model = this.v4Model
     }
 
-    return this.Model.find().toArray()
+    if (options && options.where) {
+      return model.find(options.where).toArray()
+    }
+
+    return model.find().toArray()
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
-  async aggregate(options?: object[]) {
-    if (options && options.length) {
-      return this.Model.aggregate(options).toArray()
+  async aggregate(version?: string, options?: object[]) {
+    let model = this.v5Model
+
+    if (version === 'v4') {
+      model = this.v4Model
     }
 
-    return this.Model.aggregate().toArray()
+    if (options && options.length) {
+      return model.aggregate(options).toArray()
+    }
+
+    return model.aggregate().toArray()
   }
 }

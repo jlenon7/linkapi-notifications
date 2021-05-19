@@ -20,8 +20,12 @@ export default [
   ConfigModule.forRoot(App.configs),
   HttpModule.register(App.configs.http),
   MongooseModule.forRoot(
-    App.configs.database.mongo.url,
-    App.configs.database.mongo.options,
+    App.configs.database.v4.url,
+    App.configs.database.v4.options,
+  ),
+  MongooseModule.forRoot(
+    App.configs.database.v5.url,
+    App.configs.database.v5.options,
   ),
   MongooseModule.forRoot(
     App.configs.database.metrics.url,
