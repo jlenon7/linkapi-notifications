@@ -21,13 +21,19 @@ export class CronService {
   @Inject(TriggerMetricRepository)
   private triggerMetricRepository: TriggerMetricRepository
 
-  get aggregate() {
+  aggregate(version?: string) {
     const params = {
       deleted: false,
       default: false,
       isActive: true,
       status: 'RUNNING',
       developmentJob: { $in: [false, null] },
+    }
+
+    let startDate = '$startedAt'
+
+    if (version === 'v4') {
+      startDate = '$updatedAt'
     }
 
     return [
@@ -106,7 +112,7 @@ export class CronService {
           minutes: {
             $divide: [
               {
-                $subtract: [new Date(), '$updatedAt'],
+                $subtract: [new Date(), startDate],
               },
               60000,
             ],
@@ -114,7 +120,7 @@ export class CronService {
           hours: {
             $divide: [
               {
-                $subtract: [new Date(), '$updatedAt'],
+                $subtract: [new Date(), startDate],
               },
               3600000,
             ],
@@ -201,7 +207,14 @@ export class CronService {
       .add(10, 'minutes')
       .format()
 
-    const triggers = await this.triggerRepository.aggregate(this.aggregate)
+    await this.v4TriggersTasks(startDate, endDate)
+    await this.v5TriggersTasks(startDate, endDate)
+  }
+
+  async v4TriggersTasks(startDate, endDate) {
+    const triggers = await this.triggerRepository.aggregate(
+      this.aggregate('v4'),
+    )
 
     for (const trigger of triggers) {
       const options = {
@@ -217,7 +230,34 @@ export class CronService {
         return
       }
 
-      await this.mountPayload('Triggers no result', trigger)
+      await this.mountPayload('V4 Triggers without result', {
+        trigger: trigger,
+        metrics: metrics.length,
+      })
+    }
+  }
+
+  async v5TriggersTasks(startDate, endDate) {
+    const triggers = await this.triggerRepository.aggregate(this.aggregate())
+
+    for (const trigger of triggers) {
+      const options = {
+        where: {
+          'trigger._id': trigger._id,
+          updatedAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        },
+      }
+
+      const metrics = await this.triggerMetricRepository.getAll(options)
+
+      if (!metrics.length) {
+        return
+      }
+
+      await this.mountPayload('V4 Triggers without result', {
+        trigger: trigger,
+        metrics: metrics.length,
+      })
     }
   }
 }
